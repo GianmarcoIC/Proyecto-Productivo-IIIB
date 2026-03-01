@@ -1,0 +1,15 @@
+-- biblioteca definition
+
+CREATE TABLE biblioteca (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT,
+        detecciones TEXT,
+        url TEXT,
+        thumbnail_url TEXT,
+        has_detection BOOLEAN,
+        original_filename TEXT,
+        source TEXT,
+        confidence_average REAL,
+        detection_count INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
