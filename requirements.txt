@@ -1,0 +1,7 @@
+# requirements.txt
+flask==3.0.3
+ultralytics==8.3.6          # para YOLOv8
+opencv-python==4.10.0.84    # cv2
+numpy==1.26.4
+requests==2.32.3
+werkzeug==3.0.4             # ya viene con Flask, pero a veces se especifica
