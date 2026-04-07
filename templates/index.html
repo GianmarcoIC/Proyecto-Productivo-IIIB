@@ -1,0 +1,1770 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificador de Frutas Peruanas - Sistema Inteligente</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-red: #d32f2f;
+            --dark-red: #b71c1c;
+            --light-red: #ff6659;
+            --gradient-red: linear-gradient(135deg, var(--dark-red) 0%, var(--primary-red) 50%, var(--light-red) 100%);
+            --admin-red: linear-gradient(135deg, #8B0000 0%, #B22222 50%, #DC143C 100%);
+            --sidebar-red: linear-gradient(180deg, #7a0000 0%, #8B0000 30%, #A50000 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar-red);
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-logo {
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .sidebar-logo img {
+            width: 60%;
+            height: 70px;
+            object-fit: contain;
+        }
+        
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: #FFD700;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            padding: 1.5rem 0;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            margin-bottom: 5px;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #FFD700;
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: #FFD700;
+            font-weight: bold;
+        }
+        
+        .nav-item i {
+            width: 25px;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: var(--gradient-red);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .content-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            display: none;
+        }
+        
+        .content-panel.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .location-form {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 10px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+            margin: 1rem 0;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-red);
+            background: #fff5f5;
+        }
+        
+        .upload-area i {
+            font-size: 4rem;
+            color: var(--primary-red);
+            margin-bottom: 1rem;
+        }
+        
+        .camera-preview {
+            width: 100%;
+            max-width: 640px;
+            height: 480px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem auto;
+            position: relative;
+        }
+        
+        #videoElement {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .btn {
+            background: var(--gradient-red);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        }
+        
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .image-preview {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            border-radius: 8px;
+            max-height: 400px;
+            object-fit: contain;
+        }
+        
+        .detections-list {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+        }
+        
+        .detection-item {
+            background: #f8f9fa;
+            border-left: 4px solid var(--primary-red);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .ia-analysis {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 8px 32px rgba(30, 60, 114, 0.3);
+        }
+        
+        .analysis-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #FFD700;
+        }
+        
+        .analysis-section h4 {
+            color: #FFD700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .region-badge {
+            display: inline-block;
+            background: #FFD700;
+            color: #8B0000;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .maturity-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .maturity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+        
+        .admin-panel {
+            background: var(--admin-red);
+            border-radius: 15px;
+            padding: 2rem;
+            color: white;
+            box-shadow: 0 8px 32px rgba(139, 0, 0, 0.3);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .stat-card h3 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            color: #FFD700;
+        }
+        
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .library-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border: 1px solid #eee;
+        }
+        
+        .library-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card-image {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .library-card:hover .card-image img {
+            transform: scale(1.05);
+        }
+        
+        .card-content {
+            padding: 1rem;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+        
+        .notification.error {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+        
+        .notification.info {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        
+        .loading.active {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .main-content {
+                margin-left: 200px;
+            }
+            
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .header {
+                padding: 1rem;
+            }
+            
+            .content-panel {
+                padding: 1rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1001;
+                background: var(--primary-red);
+                color: white;
+                border: none;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            }
+        }
+        
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        .d-flex { display: flex; }
+        .flex-column { flex-direction: column; }
+        .align-items-center { align-items: center; }
+        .justify-content-between { justify-content: space-between; }
+        .gap-1 { gap: 0.5rem; }
+        .gap-2 { gap: 1rem; }
+        .w-100 { width: 100%; }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .chart-canvas {
+            position: relative;
+            width: 100%;
+            height: 260px;
+        }
+
+        .chart-canvas-small {
+            height: 180px;
+        }
+
+        .chart-canvas canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <img src="logo.png" alt="Logo Perú Frutas">
+            </div>
+            <h2>Perú Frutas IA</h2>
+            <p>Sistema Inteligente</p>
+        </div>
+        
+        <div class="sidebar-nav">
+            <a href="#" class="nav-item active" onclick="showPanel('upload')">
+                <i class="fas fa-upload"></i> Subir Imagen
+            </a>
+            <a href="#" class="nav-item" onclick="showPanel('camera')">
+                <i class="fas fa-camera"></i> Cámara en Vivo
+            </a>
+            <a href="#" class="nav-item" onclick="showPanel('library')">
+                <i class="fas fa-book"></i> Biblioteca
+            </a>
+            <a href="#" class="nav-item" onclick="showPanel('admin')">
+                <i class="fas fa-chart-bar"></i> Administración
+            </a>
+            <a href="#" class="nav-item" onclick="showPanel('help')">
+                <i class="fas fa-question-circle"></i> Ayuda
+            </a>
+        </div>
+        
+        <div class="sidebar-footer">
+            <p>© 2024 Perú Frutas IA</p>
+            <p>v2.0 - Inteligencia Artificial</p>
+        </div>
+    </div>
+    
+    <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="main-content">
+        <div class="header">
+            <h1><i class="fas fa-apple-alt"></i> Clasificador de Frutas Peruanas</h1>
+            <p>Inteligencia Artificial para análisis regional de frutas del Perú</p>
+        </div>
+        
+        <div class="location-form" id="locationForm">
+            <h3><i class="fas fa-map-marker-alt"></i> Información de Ubicación</h3>
+            <p>Proporciona la ubicación para un análisis más preciso:</p>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="regionSelect"><i class="fas fa-mountain"></i> Región:</label>
+                    <select id="regionSelect" class="form-control" onchange="loadDepartments()">
+                        <option value="">Seleccionar región</option>
+                        <option value="Costa">Costa</option>
+                        <option value="Sierra">Sierra</option>
+                        <option value="Selva">Selva</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="departamentoSelect"><i class="fas fa-city"></i> Departamento:</label>
+                    <select id="departamentoSelect" class="form-control">
+                        <option value="">Seleccionar departamento</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="localidadInput"><i class="fas fa-map-pin"></i> Localidad (opcional):</label>
+                <input type="text" id="localidadInput" class="form-control" placeholder="Ej: Valle de Chancay, Villa María">
+            </div>
+        </div>
+        
+        <div id="uploadPanel" class="content-panel active">
+            <h2><i class="fas fa-cloud-upload-alt"></i> Subir Imagen de Frutas</h2>
+            <p>Selecciona una imagen para análisis con inteligencia artificial</p>
+            
+            <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-file-upload"></i>
+                <h3>Arrastra y suelta tu imagen aquí</h3>
+                <p>o haz clic para seleccionar archivo</p>
+                <p class="file-types">PNG, JPG, JPEG, GIF, BMP (Máx. 10MB)</p>
+            </div>
+            
+            <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileSelect(event)">
+            
+            <div class="text-center mt-2">
+                <button class="btn" onclick="processImage()" id="processBtn">
+                    <i class="fas fa-magic"></i> Analizar con IA
+                </button>
+                <button class="btn btn-secondary" onclick="clearUpload()">
+                    <i class="fas fa-times"></i> Limpiar
+                </button>
+            </div>
+            
+            <div id="uploadResults" style="display:none">
+            </div>
+        </div>
+        
+        <div id="cameraPanel" class="content-panel">
+            <h2><i class="fas fa-video"></i> Cámara en Vivo</h2>
+            <p>Usa tu cámara para capturar imágenes en tiempo real</p>
+            
+            <div class="camera-preview">
+                <video id="videoElement" autoplay playsinline></video>
+            </div>
+            
+            <div class="text-center mt-2">
+                <button class="btn" onclick="toggleCamera()" id="cameraToggleBtn">
+                    <i class="fas fa-power-off"></i> Encender Cámara
+                </button>
+                <button class="btn btn-success" onclick="captureImage()" id="captureBtn" disabled>
+                    <i class="fas fa-camera"></i> Capturar y Analizar
+                </button>
+            </div>
+            
+            <div id="cameraResults" class="mt-3">
+            </div>
+        </div>
+        
+        <div id="libraryPanel" class="content-panel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2><i class="fas fa-database"></i> Biblioteca de Imágenes</h2>
+                <div class="d-flex gap-1">
+                    <button class="btn" onclick="refreshLibrary()">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                    <button class="btn btn-danger" onclick="clearLibrary()">
+                        <i class="fas fa-trash"></i> Limpiar Todo
+                    </button>
+                </div>
+            </div>
+            
+            <div id="libraryGrid" class="library-grid">
+            </div>
+        </div>
+        
+        <div id="adminPanel" class="content-panel">
+            <div class="admin-panel">
+                <div class="admin-header">
+                    <h2><i class="fas fa-chart-line"></i> Panel de Administración</h2>
+                    <button class="btn" onclick="resetSystem()">
+                        <i class="fas fa-redo"></i> Resetear Sistema
+                    </button>
+                </div>
+                
+                <div class="stats-grid" id="statsGrid">
+                </div>
+                
+                <div class="d-flex gap-2 mb-3">
+                    <div class="chart-container" style="flex: 1;">
+                        <h4><i class="fas fa-map-marked-alt"></i> Distribución por Región</h4>
+                        <div class="chart-canvas">
+                            <canvas id="regionChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container" style="flex: 1;">
+                        <h4><i class="fas fa-apple-alt"></i> Frutas Más Comunes</h4>
+                        <div class="chart-canvas">
+                            <canvas id="fruitChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h4><i class="fas fa-chart-bar"></i> Actividad por Día</h4>
+                    <div class="chart-canvas chart-canvas-small">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="helpPanel" class="content-panel">
+            <h2><i class="fas fa-question-circle"></i> Centro de Ayuda</h2>
+            
+            <div class="analysis-section">
+                <h4><i class="fas fa-info-circle"></i> Cómo usar el sistema</h4>
+                <p>1. <strong>Proporciona la ubicación</strong> para análisis regional preciso</p>
+                <p>2. <strong>Sube una imagen</strong> de frutas o usa la cámara</p>
+                <p>3. <strong>Recibe análisis completo</strong> con IA específica para Perú</p>
+                <p>4. <strong>Consulta la biblioteca</strong> para ver historial</p>
+                <p>5. <strong>Revisa estadísticas</strong> en el panel de administración</p>
+            </div>
+            
+            <div class="analysis-section">
+                <h4><i class="fas fa-lightbulb"></i> Consejos para mejores resultados</h4>
+                <p>• Toma fotos con buena iluminación natural</p>
+                <p>• Enfoca bien las frutas en la imagen</p>
+                <p>• Usa fondo simple para mejor detección</p>
+                <p>• Proporciona la ubicación exacta para recomendaciones específicas</p>
+                <p>• Para frutas verdes, menciona si deseas acelerar la maduración</p>
+            </div>
+            
+            <div class="analysis-section">
+                <h4><i class="fas fa-phone-alt"></i> Soporte Técnico</h4>
+                <p><strong>Email:</strong> soporte@perufrutas-ia.pe</p>
+                <p><strong>Teléfono:</strong> (01) 123-4567</p>
+                <p><strong>Horario:</strong> Lunes a Viernes 8am - 6pm</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <h3>Analizando con Inteligencia Artificial...</h3>
+        <p>Determinando región, estado de maduración y generando recomendaciones específicas</p>
+        <p id="loadingDetail" class="mt-1"></p>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-info-circle"></i>
+        <span id="notificationText">Mensaje de notificación</span>
+    </div>
+    
+    <script>
+        // Variables globales
+        let currentPanel = 'upload';
+        let stream = null;
+        let regionChart = null;
+        let fruitChart = null;
+        let activityChart = null;
+        let selectedFile = null;
+        let currentLocation = {
+            region: '',
+            departamento: '',
+            localidad: ''
+        };
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar biblioteca inicial
+            loadLibrary();
+            loadStats();
+            
+            // Configurar drag and drop
+            setupDragAndDrop();
+            
+            // Mostrar notificación de bienvenida
+            setTimeout(() => {
+                showNotification('¡Bienvenido al Sistema de Frutas Peruanas! Proporciona tu ubicación para análisis preciso.', 'info');
+            }, 1000);
+        });
+        
+        // Configurar drag and drop
+        function setupDragAndDrop() {
+            const dropArea = document.getElementById('dropArea');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.style.borderColor = 'var(--primary-red)';
+                dropArea.style.backgroundColor = '#fff5f5';
+            }
+            
+            function unhighlight() {
+                dropArea.style.borderColor = '#ddd';
+                dropArea.style.backgroundColor = '#f9f9f9';
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    selectedFile = files[0];
+                    if (selectedFile.type.match('image.*')) {
+                        showNotification(`Imagen seleccionada: ${selectedFile.name}`, 'info');
+                        document.getElementById('processBtn').disabled = false;
+                        
+                        // Mostrar vista previa
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const preview = document.createElement('div');
+                            preview.innerHTML = `
+                                <div class="image-preview mt-2">
+                                    <h4>Vista previa:</h4>
+                                    <img src="${e.target.result}" alt="Vista previa" style="max-height: 200px;">
+                                    <p class="mt-1"><strong>Archivo:</strong> ${selectedFile.name}</p>
+                                    <p><strong>Tamaño:</strong> ${(selectedFile.size / 1024).toFixed(1)} KB</p>
+                                </div>
+                            `;
+                            document.getElementById('uploadPanel').appendChild(preview);
+                        };
+                        reader.readAsDataURL(selectedFile);
+                    } else {
+                        showNotification('Por favor, suelta solo imágenes', 'error');
+                    }
+                }
+            }
+        }
+        
+        // Funciones de navegación
+        function showPanel(panelName) {
+            // Actualizar navegación
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[onclick="showPanel('${panelName}')"]`).classList.add('active');
+            
+            // Ocultar todos los paneles
+            document.querySelectorAll('.content-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // Mostrar panel seleccionado
+            document.getElementById(`${panelName}Panel`).classList.add('active');
+            currentPanel = panelName;
+            
+            // Cargar datos si es necesario
+            if (panelName === 'library') {
+                loadLibrary();
+            } else if (panelName === 'admin') {
+                loadStats();
+            }
+            
+            // Cerrar sidebar en móvil
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('active');
+            }
+        }
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+        
+        // Funciones de ubicación
+        function loadDepartments() {
+            const region = document.getElementById('regionSelect').value;
+            const departamentoSelect = document.getElementById('departamentoSelect');
+            
+            if (!region) {
+                departamentoSelect.innerHTML = '<option value="">Seleccionar departamento</option>';
+                return;
+            }
+            
+            currentLocation.region = region;
+            
+            // Mostrar loading en el select
+            departamentoSelect.innerHTML = '<option value="">Cargando departamentos...</option>';
+            departamentoSelect.disabled = true;
+            
+            fetch(`/departamentos/${encodeURIComponent(region)}`)
+                .then(response => response.json())
+                .then(departamentos => {
+                    departamentoSelect.innerHTML = '<option value="">Seleccionar departamento</option>';
+                    departamentos.forEach(depto => {
+                        const option = document.createElement('option');
+                        option.value = depto;
+                        option.textContent = depto;
+                        departamentoSelect.appendChild(option);
+                    });
+                    departamentoSelect.disabled = false;
+                    
+                    if (departamentos.length > 0) {
+                        showNotification(`Región ${region} cargada con ${departamentos.length} departamentos`, 'info');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cargando departamentos:', error);
+                    departamentoSelect.innerHTML = '<option value="">Error al cargar</option>';
+                    showNotification('Error al cargar departamentos', 'error');
+                });
+        }
+        
+        function getLocationData() {
+            return {
+                region: document.getElementById('regionSelect').value,
+                departamento: document.getElementById('departamentoSelect').value,
+                localidad: document.getElementById('localidadInput').value
+            };
+        }
+        
+        // Funciones de imágenes
+        function handleFileSelect(event) {
+            selectedFile = event.target.files[0];
+            if (!selectedFile) return;
+            
+            if (!selectedFile.type.match('image.*')) {
+                showNotification('Por favor, selecciona solo imágenes', 'error');
+                return;
+            }
+            
+            if (selectedFile.size > 10 * 1024 * 1024) {
+                showNotification('La imagen es demasiado grande (máx. 10MB)', 'error');
+                return;
+            }
+            
+            showNotification(`Imagen seleccionada: ${selectedFile.name}`, 'info');
+            document.getElementById('processBtn').disabled = false;
+        }
+        
+        function processImage() {
+            if (!selectedFile) {
+                showNotification('Por favor, selecciona una imagen primero', 'error');
+                return;
+            }
+            
+            const locationData = getLocationData();
+            
+            // Validar ubicación
+            if (!locationData.region) {
+                if (!confirm('No has seleccionado una región. ¿Deseas continuar con análisis general?')) {
+                    return;
+                }
+            }
+            
+            showLoading('Analizando imagen... Determinando frutas y región...');
+            
+            const formData = new FormData();
+            formData.append('imagen', selectedFile);
+            formData.append('departamento', locationData.departamento);
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                
+                if (data.error) {
+                    showNotification(data.error, 'error');
+                    return;
+                }
+                
+                showNotification('¡Análisis completado exitosamente!', 'success');
+                displayResults(data, 'upload');
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                showNotification('Error al procesar la imagen. Intenta nuevamente.', 'error');
+            });
+        }
+        
+        function clearUpload() {
+            selectedFile = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('processBtn').disabled = true;
+            
+            // Limpiar vista previa
+            const preview = document.querySelector('#uploadPanel .image-preview');
+            if (preview) preview.remove();
+            
+            // Limpiar resultados
+            document.getElementById('uploadResults').style.display = 'none';
+            document.getElementById('uploadResults').innerHTML = '';
+            
+            showNotification('Formulario limpiado', 'info');
+        }
+        
+        // Funciones de cámara
+        function toggleCamera() {
+            const btn = document.getElementById('cameraToggleBtn');
+            const captureBtn = document.getElementById('captureBtn');
+            const video = document.getElementById('videoElement');
+            
+            if (stream) {
+                // Apagar cámara
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                video.srcObject = null;
+                btn.innerHTML = '<i class="fas fa-power-off"></i> Encender Cámara';
+                btn.classList.remove('btn-danger');
+                captureBtn.disabled = true;
+                showNotification('Cámara apagada', 'info');
+            } else {
+                // Encender cámara
+                navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                })
+                .then(newStream => {
+                    stream = newStream;
+                    video.srcObject = stream;
+                    btn.innerHTML = '<i class="fas fa-power-off"></i> Apagar Cámara';
+                    btn.classList.add('btn-danger');
+                    captureBtn.disabled = false;
+                    showNotification('Cámara encendida', 'success');
+                })
+                .catch(err => {
+                    console.error('Error al acceder a la cámara:', err);
+                    showNotification('No se pudo acceder a la cámara. Verifica los permisos.', 'error');
+                });
+            }
+        }
+        
+        function captureImage() {
+            if (!stream) {
+                showNotification('Primero enciende la cámara', 'error');
+                return;
+            }
+            
+            const locationData = getLocationData();
+            const video = document.getElementById('videoElement');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            showLoading('Capturando y analizando imagen...');
+            
+            canvas.toBlob(blob => {
+                const formData = new FormData();
+                formData.append('imagen', blob, 'capture.jpg');
+                
+                fetch('/captura', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        imagen: canvas.toDataURL('image/jpeg', 0.9),
+                        departamento: locationData.departamento
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    
+                    if (data.error) {
+                        showNotification(data.error, 'error');
+                        return;
+                    }
+                    
+                    showNotification('¡Captura analizada exitosamente!', 'success');
+                    displayResults(data, 'camera');
+                })
+                .catch(error => {
+                    hideLoading();
+                    console.error('Error:', error);
+                    showNotification('Error al procesar la captura', 'error');
+                });
+            }, 'image/jpeg', 0.9);
+        }
+        
+        // Mostrar resultados
+        function displayResults(data, source) {
+            const resultsDiv = document.getElementById(`${source}Results`);
+            resultsDiv.style.display = 'block';
+            
+            // Determinar porcentaje de maduración numérico
+            let maturityPercent = 50;
+            if (data.porcentaje_maduracion) {
+                const match = data.porcentaje_maduracion.match(/(\\d+)/);
+                if (match) maturityPercent = parseInt(match[1]);
+            }
+            
+            resultsDiv.innerHTML = `
+                <div class="results-container">
+                    <div class="image-preview">
+                        <h3><i class="fas fa-image"></i> Imagen Procesada</h3>
+                        <img src="${data.url}" alt="Imagen procesada">
+                        <div class="mt-2">
+                            <p><strong>Fecha:</strong> ${data.timestamp}</p>
+                            <p><strong>Ubicación:</strong> ${data.departamento || 'No especificado'}, ${data.region_peru || 'Perú'}</p>
+                            <p><strong>Confianza promedio:</strong> ${(data.confidence_average * 100).toFixed(1)}%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detections-list">
+                        <h3><i class="fas fa-search"></i> Detecciones (${data.detection_count})</h3>
+                        <div id="detectionsList">
+                            ${data.detecciones && data.detecciones.length > 0 
+                                ? data.detecciones.map(d => `
+                                    <div class="detection-item">
+                                        <div>
+                                            <strong>${d.clase}</strong>
+                                            <div style="font-size: 0.9em; color: #666;">
+                                                Confianza: ${(d.conf * 100).toFixed(1)}%
+                                            </div>
+                                        </div>
+                                        <div style="font-size: 1.2em; font-weight: bold; color: #4CAF50;">
+                                            ${(d.conf * 100).toFixed(0)}%
+                                        </div>
+                                    </div>
+                                `).join('')
+                                : '<p>No se detectaron frutas en la imagen.</p>'
+                            }
+                        </div>
+                        
+                        <div class="ia-analysis mt-3">
+                            <div class="region-badge">
+                                <i class="fas fa-map-marker-alt"></i> 
+                                ${data.region_peru || 'Región Peruana'} 
+                                ${data.departamento ? `- ${data.departamento}` : ''}
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h3 style="margin: 0;"><i class="fas fa-brain"></i> Análisis de Inteligencia Artificial</h3>
+                                <span class="btn" style="padding: 5px 15px; font-size: 0.9em;">
+                                    <i class="fas fa-seedling"></i> ${data.estado_maduracion || 'Estado de maduración'}
+                                </span>
+                            </div>
+                            
+                            <div style="margin: 1rem 0;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span>Porcentaje de Maduración:</span>
+                                    <strong>${data.porcentaje_maduracion || 'N/A'}</strong>
+                                </div>
+                                <div class="maturity-bar">
+                                    <div class="maturity-fill" style="width: ${maturityPercent}%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="analysis-section">
+                                <h4><i class="fas fa-info-circle"></i> Descripción para Agricultores Peruanos</h4>
+                                <p>${data.descripcion_ia || 'Información en proceso...'}</p>
+                            </div>
+                            
+                            <div class="analysis-section">
+                                <h4><i class="fas fa-clipboard-check"></i> Recomendaciones Prácticas</h4>
+                                <p>${data.recomendaciones || 'Recomendaciones específicas en proceso...'}</p>
+                            </div>
+                            
+                            <div class="analysis-section">
+                                <h4><i class="fas fa-cloud-sun"></i> Clima y Condiciones Ideales</h4>
+                                <p>${data.clima_recomendado || 'Información climática en proceso...'}</p>
+                            </div>
+                            
+                            <div class="analysis-section">
+                                <h4><i class="fas fa-tractor"></i> Consejos de Cultivo</h4>
+                                <p>${data.consejos_cultivo || 'Consejos de cultivo en proceso...'}</p>
+                            </div>
+                            
+                            <div class="form-row mt-2">
+                                <div class="analysis-section" style="flex: 1;">
+                                    <h4><i class="fas fa-clock"></i> Tiempo de Maduración</h4>
+                                    <p>${data.tiempo_maduracion || 'Por determinar'}</p>
+                                </div>
+                                
+                                <div class="analysis-section" style="flex: 1;">
+                                    <h4><i class="fas fa-warehouse"></i> Almacenamiento</h4>
+                                    <p>${data.almacenamiento || 'Recomendaciones en proceso'}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="analysis-section">
+                                <h4><i class="fas fa-store"></i> Mercado Local</h4>
+                                <p>${data.mercado_local || 'Información de mercado en proceso...'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <button class="btn btn-success" onclick="showPanel('library')">
+                        <i class="fas fa-save"></i> Guardar en Biblioteca
+                    </button>
+                    <button class="btn" onclick="clearResults('${source}')">
+                        <i class="fas fa-times"></i> Cerrar Resultados
+                    </button>
+                </div>
+            `;
+            
+            // Scroll a resultados
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            
+            // Actualizar biblioteca si está visible
+            if (currentPanel === 'library') {
+                loadLibrary();
+            }
+        }
+        
+        function clearResults(source) {
+            document.getElementById(`${source}Results`).style.display = 'none';
+            document.getElementById(`${source}Results`).innerHTML = '';
+        }
+        
+        // Funciones de biblioteca
+        function loadLibrary() {
+            showLoading('Cargando biblioteca...');
+            
+            fetch('/biblioteca')
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    
+                    if (data.error) {
+                        showNotification(data.error, 'error');
+                        return;
+                    }
+                    
+                    const libraryGrid = document.getElementById('libraryGrid');
+                    libraryGrid.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        libraryGrid.innerHTML = `
+                            <div class="text-center" style="grid-column: 1 / -1; padding: 3rem; color: #666;">
+                                <i class="fas fa-inbox" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                                <h3>Biblioteca Vacía</h3>
+                                <p>No hay imágenes en la biblioteca todavía.</p>
+                                <button class="btn mt-2" onclick="showPanel('upload')">
+                                    <i class="fas fa-plus"></i> Subir Primera Imagen
+                                </button>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    data.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'library-card';
+                        card.innerHTML = `
+                            <div class="card-image">
+                                <img src="${item.thumbnail_url}" alt="${item.original_filename}" loading="lazy">
+                            </div>
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <small>${item.timestamp}</small>
+                                    <button class="delete-btn" onclick="deleteImage(${item.id}, this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <h4>${item.original_filename}</h4>
+                                <p><i class="fas fa-map-marker-alt"></i> <strong>Ubicación:</strong> ${item.departamento || 'N/A'}, ${item.region_peru || 'Perú'}</p>
+                                <p><i class="fas fa-search"></i> <strong>Detecciones:</strong> ${item.detection_count}</p>
+                                <p><i class="fas fa-chart-line"></i> <strong>Confianza:</strong> ${(item.confidence_average * 100).toFixed(1)}%</p>
+                                ${item.detecciones && item.detecciones.length > 0 
+                                    ? `<p><i class="fas fa-apple-alt"></i> <strong>Frutas:</strong> ${item.detecciones.slice(0, 3).map(d => d.clase).join(', ')}${item.detecciones.length > 3 ? '...' : ''}</p>`
+                                    : ''
+                                }
+                                <button class="btn w-100 mt-2" onclick="viewDetails(${item.id})">
+                                    <i class="fas fa-eye"></i> Ver Análisis Completo
+                                </button>
+                            </div>
+                        `;
+                        libraryGrid.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    hideLoading();
+                    console.error('Error:', error);
+                    showNotification('Error al cargar la biblioteca', 'error');
+                });
+        }
+        
+        function deleteImage(id, button) {
+            if (!confirm('¿Estás seguro de eliminar esta imagen y todos sus datos?')) {
+                return;
+            }
+            
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            fetch(`/delete/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-trash"></i>';
+                
+                if (data.error) {
+                    showNotification(data.error, 'error');
+                    return;
+                }
+                
+                showNotification('Imagen eliminada correctamente', 'success');
+                // Eliminar tarjeta del DOM
+                button.closest('.library-card').remove();
+                
+                // Recargar estadísticas si estamos en admin
+                if (currentPanel === 'admin') {
+                    loadStats();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-trash"></i>';
+                showNotification('Error al eliminar la imagen', 'error');
+            });
+        }
+        
+        function viewDetails(id) {
+            fetch('/biblioteca')
+                .then(response => response.json())
+                .then(data => {
+                    const item = data.find(i => i.id === id);
+                    if (item) {
+                        showPanel('upload');
+                        setTimeout(() => {
+                            displayResults(item, 'upload');
+                        }, 100);
+                    }
+                });
+        }
+        
+        function refreshLibrary() {
+            showNotification('Actualizando biblioteca...', 'info');
+            loadLibrary();
+        }
+        
+        function clearLibrary() {
+            if (!confirm('¿Estás seguro de eliminar TODAS las imágenes y datos? Esta acción no se puede deshacer.')) {
+                return;
+            }
+            
+            showLoading('Limpiando biblioteca...');
+            
+            fetch('/reset', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                
+                if (data.error) {
+                    showNotification(data.error, 'error');
+                    return;
+                }
+                
+                showNotification('Biblioteca limpiada completamente', 'success');
+                loadLibrary();
+                loadStats();
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                showNotification('Error al limpiar la biblioteca', 'error');
+            });
+        }
+        
+        // Funciones de administración
+        function loadStats() {
+            fetch('/estadisticas')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showNotification(data.error, 'error');
+                        return;
+                    }
+                    
+                    // Actualizar estadísticas
+                    const statsGrid = document.getElementById('statsGrid');
+                    statsGrid.innerHTML = `
+                        <div class="stat-card">
+                            <h3>${data.total || 0}</h3>
+                            <p>Imágenes Recientes</p>
+                            <small>Máximo ${data.limite_estadisticas || 100}</small>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${data.detectadas || 0}</h3>
+                            <p>Con Detecciones</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${data.no_detectadas || 0}</h3>
+                            <p>Sin Detecciones</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${Object.keys(data.clases || {}).length}</h3>
+                            <p>Tipos de Frutas</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${Object.keys(data.regiones || {}).length}</h3>
+                            <p>Regiones</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${Object.keys(data.departamentos || {}).length}</h3>
+                            <p>Departamentos</p>
+                        </div>
+                    `;
+                    
+                    // Gráfico de regiones
+                    const regionCtx = document.getElementById('regionChart').getContext('2d');
+                    if (regionChart) {
+                        regionChart.destroy();
+                        regionChart = null;
+                    }
+                    
+                    const regionLabels = Object.keys(data.regiones || {});
+                    const regionData = Object.values(data.regiones || {});
+                    const regionColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+                    
+                    regionChart = new Chart(regionCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: regionLabels,
+                            datasets: [{
+                                data: regionData,
+                                backgroundColor: regionColors.slice(0, regionLabels.length),
+                                borderWidth: 2,
+                                borderColor: 'rgba(255,255,255,0.8)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        color: 'white',
+                                        font: { size: 12 }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Gráfico de frutas
+                    const fruitCtx = document.getElementById('fruitChart').getContext('2d');
+                    if (fruitChart) {
+                        fruitChart.destroy();
+                        fruitChart = null;
+                    }
+                    
+                    const topFruits = (data.top_frutas || []).slice(0, 8);
+                    const fruitLabels = topFruits.map(f => f[0]);
+                    const fruitData = topFruits.map(f => f[1]);
+                    
+                    fruitChart = new Chart(fruitCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: fruitLabels,
+                            datasets: [{
+                                label: 'Cantidad',
+                                data: fruitData,
+                                backgroundColor: 'rgba(255, 215, 0, 0.7)',
+                                borderColor: 'rgba(255, 215, 0, 1)',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { color: 'white' },
+                                    grid: { color: 'rgba(255,255,255,0.1)' }
+                                },
+                                x: {
+                                    ticks: { 
+                                        color: 'white',
+                                        maxRotation: 45
+                                    },
+                                    grid: { color: 'rgba(255,255,255,0.1)' }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: 'white',
+                                        font: { size: 12 }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Gráfico de actividad real de los ultimos 7 dias
+                    const activityCtx = document.getElementById('activityChart').getContext('2d');
+                    if (activityChart) {
+                        activityChart.destroy();
+                        activityChart = null;
+                    }
+                    
+                    const days = data.actividad_labels || [];
+                    const activityData = data.actividad_valores || [];
+                    
+                    activityChart = new Chart(activityCtx, {
+                        type: 'line',
+                        data: {
+                            labels: days,
+                            datasets: [{
+                                label: 'Imágenes por día',
+                                data: activityData,
+                                borderColor: '#FFD700',
+                                backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { color: 'white' },
+                                    grid: { color: 'rgba(255,255,255,0.1)' }
+                                },
+                                x: {
+                                    ticks: { color: 'white' },
+                                    grid: { color: 'rgba(255,255,255,0.1)' }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: 'white',
+                                        font: { size: 12 }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error al cargar estadísticas', 'error');
+                });
+        }
+        
+        function resetSystem() {
+            if (!confirm('¿Estás seguro de resetear todo el sistema? Se eliminarán TODAS las imágenes y datos.')) {
+                return;
+            }
+            
+            showLoading('Reseteando sistema...');
+            
+            fetch('/reset', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                
+                if (data.error) {
+                    showNotification(data.error, 'error');
+                    return;
+                }
+                
+                showNotification('Sistema reseteado correctamente', 'success');
+                loadStats();
+                loadLibrary();
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                showNotification('Error al resetear el sistema', 'error');
+            });
+        }
+        
+        // Funciones de utilidad
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notificationText');
+            const icon = notification.querySelector('i');
+            
+            // Cambiar icono según tipo
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle';
+            } else {
+                icon.className = 'fas fa-info-circle';
+            }
+            
+            notification.className = `notification ${type} show`;
+            text.textContent = message;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+        
+        function showLoading(message = 'Procesando...') {
+            const loading = document.getElementById('loading');
+            const detail = document.getElementById('loadingDetail');
+            
+            detail.textContent = message;
+            loading.classList.add('active');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('active');
+        }
+        
+        // Manejar tecla Escape para apagar cámara
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && stream) {
+                toggleCamera();
+            }
+        });
+        
+        // Cerrar sidebar al hacer clic fuera en móvil
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                const menuToggle = document.getElementById('menuToggle');
+                
+                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target) && sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
